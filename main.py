@@ -5,6 +5,23 @@ from wrappers.spotify_tracks import get_all_tracks_from_playlist, append_audio_f
     AudioAttribute
 
 
+def list_matching_playlists(find_target_playlist: callable):
+    """This will print all the playlist variants that were created."""
+    spotify = get_spotify()
+
+    playlists = get_all_playlists(spotify)
+    matching_playlists = []
+    for playlist in playlists:
+        print(f"Looking through the playlist: {playlist.name}", end="\r", flush=True)
+        if not find_target_playlist(playlist.name):
+            continue
+
+        matching_playlists.append(playlist)
+        print(f"- {playlist.name} ({playlist.external_urls['spotify']})")
+
+    return matching_playlists
+
+
 def main(find_target_playlist: callable, create_playlists: bool):
     spotify = get_spotify()
 
@@ -36,7 +53,7 @@ def main(find_target_playlist: callable, create_playlists: bool):
 
             if not create_playlists:
                 continue
-            spotify_playlist_name = f"{target_playlist_name} - {variant_name.replace('_', ' ')}"
+            spotify_playlist_name = f"{target_playlist_name} - {variant_name.replace('_', ' ')}".replace("  ", " ")
             sorted_playlist, from_cache = create_playlist(
                 spotify=spotify,
                 name=spotify_playlist_name,
